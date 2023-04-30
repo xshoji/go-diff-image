@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	diffimage "github.com/murooka/go-diff-image"
+	diffimage "github.com/xshoji/go-diff-image"
 )
 
 func mustOpen(filename string) *os.File {
