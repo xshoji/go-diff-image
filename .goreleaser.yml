@@ -7,13 +7,15 @@ builds:
       - linux
     goarch:
       - amd64
+    flags:
+      - -trimpath
+    ldflags: 
+      - -s -w
     # クロスコンパイル時はCGO_ENABLEDはデフォルトでは有効にならない。なので有効にしたが
     # linux_syscall.c:67:13: error: implicit declaration of function 'setresgid' is invalid in C99
     # がでるので今回は無効化する
     env:
       - CGO_ENABLED=0
-    ldflags: 
-      - -s -w
 # archives.replacements - Deprecation notices - GoReleaser https://goreleaser.com/deprecations/?h=replacements#archivesreplacements
 archives:
   - id: main
