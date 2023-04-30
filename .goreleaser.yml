@@ -1,0 +1,36 @@
+builds:
+  - main: cmd/diff-image/main.go
+    binary: diff-image
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+    # クロスコンパイル時はCGO_ENABLEDはデフォルトでは有効にならない。なので有効にしたが
+    # linux_syscall.c:67:13: error: implicit declaration of function 'setresgid' is invalid in C99
+    # がでるので今回は無効化する
+    env:
+      - CGO_ENABLED=0
+# archives.replacements - Deprecation notices - GoReleaser https://goreleaser.com/deprecations/?h=replacements#archivesreplacements
+archives:
+  - id: main
+    name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    replacements:
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+#     いらないので無効化
+#     386: i386
+      amd64: x86_64
+# プロジェクトの完全なビルドを生成したいが、何も検証したくないし、どこかにアップロードもしたくないという場合があります。
+# GoReleaser は --snapshot フラグとスナップショット カスタマイズ セクションでこれをサポートします。
+# snapshots - Snapshots - GoReleaser https://goreleaser.com/customization/snapshots/?h=snapshot#snapshots
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

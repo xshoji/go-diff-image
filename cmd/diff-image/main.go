@@ -78,11 +78,11 @@ var (
 func init() {
 	// Define long parameters and description ( set default value here if you need ).
 	// Required parameters
-	flag.StringVar(paramsOutputPath /*         */, "output" /*                  */, "" /*    */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Output path")
+	flag.StringVar(paramsOutputPath /*         */, "output" /*                  */, "" /*    */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Output path of difference image")
 	flag.StringVar(paramsBeforeImagePath /*    */, "before-image-path" /*       */, "" /*    */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Image path (before)")
 	flag.StringVar(paramsAfterImagePath /*     */, "after-image-path" /*        */, "" /*    */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Image path (after)")
 	// Optional parameters
-	flag.BoolVar(paramsFailureIfDiffExists /*  */, "failure-if-diff-exists" /*  */, false /* */, "To be failure if diff exists.")
+	flag.BoolVar(paramsFailureIfDiffExists /*  */, "failure-if-diff-exists" /*  */, false /* */, "To be failure if diff exists")
 	flag.BoolVar(paramsHelp /*                 */, "help" /*                    */, false /* */, "Show help")
 }
 
@@ -121,6 +121,7 @@ func main() {
 	println(fmt.Sprintf("%-15s", "insertions"), insertions)
 	println(fmt.Sprintf("%-15s", "equals"), equals)
 
+	// Exit with error status if difference of 2 images exists.
 	if *paramsFailureIfDiffExists && (deletions != 0 || insertions != 0) {
 		os.Exit(1)
 	}

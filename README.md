@@ -3,12 +3,17 @@
 A diff tool for images.
 
 
+
 ## Installation
+
 ```
-$ go get -u github.com/xshoji/go-diff-image/...
+$ go get github.com/xshoji/go-diff-image
 ```
 
+
+
 ## Usage
+
 ```bash
 go run cmd/diff-image/main.go -h
 Usage of /var/folders/_q/dpw924t12bj25568xfxcd2wm0000gn/T/go-build1976644086/b001/exe/main:
@@ -25,6 +30,41 @@ Usage of /var/folders/_q/dpw924t12bj25568xfxcd2wm0000gn/T/go-build1976644086/b00
 
 go run cmd/diff-image/main.go -o=/tmp/d.png -b=/tmp/s1.png -a=/tmp/s2.png
 ```
+
+
+
 ## Example
 
 ![example](https://raw.githubusercontent.com/xshoji/go-diff-image/master/example.png)
+
+
+
+
+## Build
+
+```
+# Build
+APP=/tmp/diff-image; MAIN=cmd/diff-image/main.go; go build -ldflags="-s -w" -trimpath -o "${APP}" "${MAIN}"; chmod +x "${APP}"
+
+# Croess compile by goreleaser
+goreleaser --snapshot --skip-publish --rm-dist
+```
+
+
+
+## Release
+
+Release flow of this repository is integrated with github action.
+Git tag pushing triggers release job.
+
+```
+git tag v0.0.2 && git push --tags
+```
+
+
+## Tips
+
+```
+# Delete tag
+echo "v0.0.1" |xargs -I{} bash -c "git tag -d {}; git push origin :{}"
+```
