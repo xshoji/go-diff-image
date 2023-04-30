@@ -44,18 +44,29 @@ func mustSaveImage(img image.Image, output string) {
 	png.Encode(f, img)
 }
 
-func rate16(c uint32, r float64) uint16 {
-	fc := float64(c)
-	return uint16(65535 - (65535-fc)*r)
-}
+var (
+	ColorPrinter = struct {
+		Red      string
+		Yellow   string
+		Colorize func(string, string) string
+	}{
+		Red:    "\033[31m",
+		Yellow: "\033[33m",
+		Colorize: func(color string, text string) string {
+			if runtime.GOOS == "windows" {
+				return text
+			}
+			colorReset := "\033[0m"
+			return color + text + colorReset
+		},
+	}
+)
 
 const (
 	DummyUsage = "########"
 )
 
 var (
-	TerminalColorReset  = "\033[0m"
-	TerminalColorYellow = "\033[33m"
 	// Define short parameters ( don't set default value ).
 	paramsOutputPath      = flag.String("o", "", DummyUsage)
 	paramsBeforeImagePath = flag.String("b", "", DummyUsage)
@@ -64,17 +75,11 @@ var (
 )
 
 func init() {
-
-	if runtime.GOOS == "windows" {
-		TerminalColorReset = ""
-		TerminalColorYellow = ""
-	}
-
 	// Define long parameters and description ( set default value here if you need ).
 	// Required parameters
-	flag.StringVar(paramsOutputPath /*      */, "output" /*            */, "" /*     */, TerminalColorYellow+"[required]"+TerminalColorReset+" Output path")
-	flag.StringVar(paramsBeforeImagePath /* */, "before-image-path" /* */, "" /*     */, TerminalColorYellow+"[required]"+TerminalColorReset+" Image path (before)")
-	flag.StringVar(paramsAfterImagePath /*  */, "after-image-path" /*   */, "" /*     */, TerminalColorYellow+"[required]"+TerminalColorReset+" Image path (after)")
+	flag.StringVar(paramsOutputPath /*      */, "output" /*            */, "" /*     */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Output path")
+	flag.StringVar(paramsBeforeImagePath /* */, "before-image-path" /* */, "" /*     */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Image path (before)")
+	flag.StringVar(paramsAfterImagePath /*  */, "after-image-path" /*   */, "" /*    */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Image path (after)")
 	// Optional parameters
 	flag.BoolVar(paramsHelp /*              */, "help" /*              */, false /*  */, "Show help")
 }
@@ -93,9 +98,14 @@ func main() {
 	}
 
 	flag.Parse()
-	if *paramsHelp || *paramsOutputPath == "" || *paramsBeforeImagePath == "" || *paramsAfterImagePath == "" {
+	if *paramsHelp {
 		flag.Usage()
 		os.Exit(0)
+	}
+	if *paramsOutputPath == "" || *paramsBeforeImagePath == "" || *paramsAfterImagePath == "" {
+		fmt.Println(ColorPrinter.Colorize(ColorPrinter.Red, "[ERROR]") + " Missing required parameter.")
+		flag.Usage()
+		os.Exit(1)
 	}
 
 	img1 := mustLoadImage(*paramsBeforeImagePath)
