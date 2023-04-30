@@ -58,13 +58,15 @@ Release flow of this repository is integrated with github action.
 Git tag pushing triggers release job.
 
 ```
+# Release
 git tag v0.0.2 && git push --tags
-```
 
 
-## Tips
 
-```
 # Delete tag
-echo "v0.0.1" |xargs -I{} bash -c "git tag -d {}; git push origin :{}"
+echo "v0.0.1" |xargs -I{} bash -c "git tag -d {} && git push origin :{}"
+
+# Delete tag and recreate new tag and push
+echo "v0.0.1" |xargs -I{} bash -c "git tag -d {} && git push origin :{}; git tag {} -m \"Release beta version.\"; git push --tags"
+
 ```
