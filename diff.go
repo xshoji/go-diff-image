@@ -117,7 +117,7 @@ func max(a, b int) int {
 	return b
 }
 
-func DiffImage(img1, img2 image.Image) image.Image {
+func DiffImage(img1, img2 image.Image) (diffImg *image.RGBA, deletions int, insertions int, equals int) {
 	sz1 := img1.Bounds().Size()
 	sz2 := img2.Bounds().Size()
 	w := max(sz1.X, sz2.X)
@@ -133,27 +133,30 @@ func DiffImage(img1, img2 image.Image) image.Image {
 	}
 
 	diffs := diff(lines1, lines2)
-	diffImg := image.NewRGBA(image.Rect(0, 0, w, len(diffs)))
+	diffImg = image.NewRGBA(image.Rect(0, 0, w, len(diffs)))
 	for y, diff := range diffs {
 		colors := decodeLine(diff.Text)
 
 		switch diff.Type {
 		case diffmatchpatch.DiffDelete:
+			deletions++
 			red := color.RGBA64{0xffff, 0, 0, 0x4000}
 			for x, c := range colors {
 				diffImg.Set(x, y, blend(c, red))
 			}
 		case diffmatchpatch.DiffInsert:
+			insertions++
 			green := color.RGBA64{0, 0xffff, 0, 0x4000}
 			for x, c := range colors {
 				diffImg.Set(x, y, blend(c, green))
 			}
 		case diffmatchpatch.DiffEqual:
+			equals++
 			for x, c := range colors {
 				diffImg.Set(x, y, c)
 			}
 		}
 	}
 
-	return diffImg
+	return
 }

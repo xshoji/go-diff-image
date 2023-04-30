@@ -68,20 +68,22 @@ const (
 
 var (
 	// Define short parameters ( don't set default value ).
-	paramsOutputPath      = flag.String("o", "", DummyUsage)
-	paramsBeforeImagePath = flag.String("b", "", DummyUsage)
-	paramsAfterImagePath  = flag.String("a", "", DummyUsage)
-	paramsHelp            = flag.Bool("h", false, "\n"+DummyUsage)
+	paramsOutputPath          = flag.String("o", "", DummyUsage)
+	paramsBeforeImagePath     = flag.String("b", "", DummyUsage)
+	paramsAfterImagePath      = flag.String("a", "", DummyUsage)
+	paramsFailureIfDiffExists = flag.Bool("f", false, "\n"+DummyUsage)
+	paramsHelp                = flag.Bool("h", false, "\n"+DummyUsage)
 )
 
 func init() {
 	// Define long parameters and description ( set default value here if you need ).
 	// Required parameters
-	flag.StringVar(paramsOutputPath /*      */, "output" /*            */, "" /*     */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Output path")
-	flag.StringVar(paramsBeforeImagePath /* */, "before-image-path" /* */, "" /*     */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Image path (before)")
-	flag.StringVar(paramsAfterImagePath /*  */, "after-image-path" /*   */, "" /*    */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Image path (after)")
+	flag.StringVar(paramsOutputPath /*         */, "output" /*                      */, "" /*     */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Output path")
+	flag.StringVar(paramsBeforeImagePath /*    */, "before-image-path" /*           */, "" /*     */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Image path (before)")
+	flag.StringVar(paramsAfterImagePath /*     */, "after-image-path" /*            */, "" /*    */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Image path (after)")
 	// Optional parameters
-	flag.BoolVar(paramsHelp /*              */, "help" /*              */, false /*  */, "Show help")
+	flag.BoolVar(paramsFailureIfDiffExists /*  */, "be-failure-if-diff-exists" /*   */, false /*    */, "Be failure if diff exists.")
+	flag.BoolVar(paramsHelp /*                 */, "help" /*                        */, false /*  */, "Show help")
 }
 
 func main() {
@@ -111,7 +113,16 @@ func main() {
 	img1 := mustLoadImage(*paramsBeforeImagePath)
 	img2 := mustLoadImage(*paramsAfterImagePath)
 
-	dst := diffimage.DiffImage(img1, img2)
+	diffImg, deletions, insertions, equals := diffimage.DiffImage(img1, img2)
 
-	mustSaveImage(dst, *paramsOutputPath)
+	mustSaveImage(diffImg, *paramsOutputPath)
+
+	println(fmt.Sprintf("%-15s", "deletions"), deletions)
+	println(fmt.Sprintf("%-15s", "insertions"), insertions)
+	println(fmt.Sprintf("%-15s", "equals"), equals)
+
+	if *paramsFailureIfDiffExists && (deletions != 0 || insertions != 0) {
+		os.Exit(1)
+	}
+	os.Exit(0)
 }
