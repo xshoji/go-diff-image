@@ -15,20 +15,22 @@ $ go get github.com/xshoji/go-diff-image
 ## Usage
 
 ```bash
-go run cmd/diff-image/main.go -h
-Usage of /var/folders/_q/dpw924t12bj25568xfxcd2wm0000gn/T/go-build1976644086/b001/exe/main:
+./diff-image -h
+Usage of ./diff-image:
     -a, --after-image-path string
     	[required] Image path (after)
     -b, --before-image-path string
     	[required] Image path (before)
-    -f, --failure-if-diff-exists
-    	To be failure if diff exists.
+    -e, --error-if-difference
+    	Be regarded as an error (status code 1) if difference exists
     -h, --help
     	Show help
+    -n, --not-output-if-same
+    	Not output difference image if inputs are same
     -o, --output string
-    	[required] Output path
+    	[required] Output path of difference image
 
-go run cmd/diff-image/main.go -o=/tmp/d.png -b=/tmp/s1.png -a=/tmp/s2.png
+./diff-image -o=/tmp/d.png -b=/tmp/s1.png -a=/tmp/s2.png
 ```
 
 
