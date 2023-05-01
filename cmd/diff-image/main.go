@@ -68,11 +68,12 @@ const (
 
 var (
 	// Define short parameters ( don't set default value ).
-	paramsOutputPath          = flag.String("o", "", DummyUsage)
-	paramsBeforeImagePath     = flag.String("b", "", DummyUsage)
-	paramsAfterImagePath      = flag.String("a", "", DummyUsage)
-	paramsFailureIfDiffExists = flag.Bool("f", false, "\n"+DummyUsage)
-	paramsHelp                = flag.Bool("h", false, "\n"+DummyUsage)
+	paramsOutputPath              = flag.String("o", "", DummyUsage)
+	paramsBeforeImagePath         = flag.String("b", "", DummyUsage)
+	paramsAfterImagePath          = flag.String("a", "", DummyUsage)
+	paramsErrorIfDifferenceExists = flag.Bool("e", false, "\n"+DummyUsage)
+	paramsNotOutputIfSameImage    = flag.Bool("n", false, "\n"+DummyUsage)
+	paramsHelp                    = flag.Bool("h", false, "\n"+DummyUsage)
 )
 
 func init() {
@@ -82,7 +83,8 @@ func init() {
 	flag.StringVar(paramsBeforeImagePath /*    */, "before-image-path" /*       */, "" /*    */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Image path (before)")
 	flag.StringVar(paramsAfterImagePath /*     */, "after-image-path" /*        */, "" /*    */, ColorPrinter.Colorize(ColorPrinter.Yellow, "[required]")+" Image path (after)")
 	// Optional parameters
-	flag.BoolVar(paramsFailureIfDiffExists /*  */, "failure-if-diff-exists" /*  */, false /* */, "To be failure if diff exists")
+	flag.BoolVar(paramsErrorIfDifferenceExists /*  */, "error-if-difference" /*  */, false /* */, "Be regarded as an error (status code 1) if difference exists")
+	flag.BoolVar(paramsNotOutputIfSameImage /*    */, "not-output-if-same" /*  */, false /* */, "Not output difference image if inputs are same")
 	flag.BoolVar(paramsHelp /*                 */, "help" /*                    */, false /* */, "Show help")
 }
 
@@ -115,15 +117,23 @@ func main() {
 
 	diffImg, deletions, insertions, equals := diffimage.DiffImage(img1, img2)
 
-	mustSaveImage(diffImg, *paramsOutputPath)
-
 	println(fmt.Sprintf("%-15s", "deletions"), deletions)
 	println(fmt.Sprintf("%-15s", "insertions"), insertions)
 	println(fmt.Sprintf("%-15s", "equals"), equals)
 
+	hasDifference := deletions != 0 || insertions != 0
+
+	// Not output difference image if inputs are same.
+	if *paramsNotOutputIfSameImage && !hasDifference {
+		os.Exit(0)
+	}
+
+	mustSaveImage(diffImg, *paramsOutputPath)
+
 	// Exit with error status if difference of 2 images exists.
-	if *paramsFailureIfDiffExists && (deletions != 0 || insertions != 0) {
+	if *paramsErrorIfDifferenceExists && hasDifference {
 		os.Exit(1)
 	}
+
 	os.Exit(0)
 }
