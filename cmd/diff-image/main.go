@@ -90,7 +90,7 @@ func init() {
 
 func main() {
 
-	// Set DummyUsage
+	// Set adjusted usage
 	b := new(bytes.Buffer)
 	flag.CommandLine.SetOutput(b)
 	flag.Usage()
