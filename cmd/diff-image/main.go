@@ -24,7 +24,11 @@ func mustOpen(filename string) *os.File {
 
 func mustLoadImage(filename string) image.Image {
 	f := mustOpen(filename)
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			panic(err)
+		}
+	}()
 
 	img, _, err := image.Decode(f)
 	if err != nil {
@@ -36,7 +40,11 @@ func mustLoadImage(filename string) image.Image {
 
 func mustSaveImage(img image.Image, output string) {
 	f, err := os.OpenFile(output, os.O_WRONLY|os.O_CREATE, 0644)
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			panic(err)
+		}
+	}()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,7 +106,7 @@ func main() {
 	usage := re.ReplaceAllString(b.String(), "  $1, -$3$4\n")
 	flag.CommandLine.SetOutput(os.Stderr)
 	flag.Usage = func() {
-		_, _ = fmt.Fprintf(flag.CommandLine.Output(), usage)
+		_, _ = fmt.Fprint(flag.CommandLine.Output(), usage)
 	}
 
 	flag.Parse()
